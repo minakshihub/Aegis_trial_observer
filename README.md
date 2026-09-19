@@ -1,27 +1,47 @@
-# Aegis Observer Core
+# Aegis Observer Engine: 72-Hour Evaluation Edition
 
-A True Zero-Configuration C++ telemetry and diagnostic engine for Agentic AI. 
+Aegis is a bare-metal C++17 telemetry and anomaly-detection firewall engineered for autonomous AI agent swarms. 
 
-The Observer Core passively monitors AI agent behavior, flags diagnostic anomalies in real-time, and generates binary ledgers on isolated background threads without blocking or degrading the host application's main thread.
+Designed to sit invisibly between your application layer and the upstream LLM, Aegis acts as a microsecond-latency circuit breaker. It prevents runaway loops, token bloat, and application deadlocks before they exhaust your API budget or crash your local infrastructure.
 
-## Architecture & Philosophy
+### ⚠️ Evaluation Notice: 72-Hour Time Lock
+This repository contains the **Trial Edition** of the Aegis Industrial Core. The `libaegis.a` binary provided in this repository is cryptographically time-locked. It contains the complete, unrestricted feature set of the industrial engine, but will automatically permanently halt execution exactly **72 hours** after its compilation timestamp. 
 
-**The Why:** Modern Agentic AI systems lack standardized, low-overhead observability. Traditional logging requires manual path configurations, explicit file handling, and heavy main-thread synchronization. Aegis was built to eliminate this friction.
+For the permanent industrial license and source integration, please contact the repository owner.
 
-**The What (True Zero-Configuration):** The engine is entirely self-sufficient. It internally initializes a lock-free `RingBuffer`, an autonomous `VfsWorker`, and a `PassiveObserver`. It manages its own memory, thread lifecycle, and file I/O operations autonomously. 
+---
 
-## Integration & Build Instructions
+## Capabilities & Anomaly Detection
 
-Aegis is built using standard CMake. It is designed to be linked statically to the host AI application.
+Aegis evaluates real-time telemetry across 65,536 concurrent agents without introducing network latency or utilizing blocking mutexes. It instantly flags and intercepts the following critical failure states:
 
-### Building the Industrial Engine
-```bash
-mkdir build && cd build
-cmake ..
-make
+### 1. Repetition & Logic Traps
+* **Unresolved Loop Traps:** Detects agents caught in infinite loops, including those attempting to evade detection by slightly permuting tool arguments on every turn.
+* **Action Thrashing:** Identifies A-B-A oscillation where an agent rapidly bounces between two actions without making forward progress.
+* **Zombie Streaks:** Tracks consecutive execution failures (e.g., hallucinated files or broken JSON) to halt agents banging against a failure wall.
+
+### 2. Context Window & Memory Protection
+* **Context Hemorrhage:** Detects sudden, massive spikes in prompt tokens (e.g., an agent accidentally dumping a massive server log into its scratchpad).
+* **Data Bombs:** Aggressively limits and flags maximum-size payload returns to prevent Out-Of-Memory (OOM) application crashes.
+
+### 3. Temporal & Swarm Anomalies
+* **Cognitive Stalls (Apology Spirals):** Calculates a dynamic time budget to cut off agents that get stuck generating polite conversational text instead of executing required tools.
+* **Velocity Spikes:** Identifies unthrottled local compute loops (sub-50ms turnarounds) where an agent is spinning CPU cycles without waiting for valid I/O.
+* **Swarm Deadlocks:** Detects zero-entropy ping-ponging in multi-agent architectures (e.g., Agent A and Agent B trapped in an infinite query/reject loop).
+
+---
+
+## Integration
+
+Aegis is distributed as a pre-compiled static library to ensure zero dependencies and instantaneous integration into your C++ stack.
+
+1. Include the headers from the `include/` directory.
+2. Link against the time-locked binary in the `lib/` directory:
+   ```bash
+   g++ -std=c++17 your_app.cpp -I./include -L./lib -laegis -o your_app
 
 
-(Note: A 72-hour time-locked trial build can be triggered via cmake -DBUILD_TRIAL=ON ..)
+(Note: A 72-hour time-locked trial build is triggered)
 
 Running the Engine
 Simply include the header and instantiate the engine at the start of your host application. No file paths or thread management required.
