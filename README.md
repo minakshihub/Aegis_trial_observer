@@ -33,6 +33,46 @@ Aegis evaluates real-time telemetry across 65,536 concurrent agents without intr
 
 ## Integration
 
+## STEPWISE 
+## Integrating Aegis into an existing C++ codebase takes three concrete steps:
+
+## 1. Drop the files into the project
+   
+   Copy two things into their(client) existing codebase:
+
+   (i) The header file (aegis.hpp) into their include folder. This acts as the instruction manual telling their code what Aegis looks like.
+
+   (ii)The static binary (libaegis.a) into their library folder. This is the pre-compiled engine itself—a self-contained "black box" with zero external dependencies.
+
+## 2. Add two lines of code
+Inside their existing main() function,  write only two lines:
+
+#include "aegis.hpp"
+
+int main() {
+    Aegis engine; // <--- Starts the background recorder immediately
+
+    // ... All of their existing AI / agent code runs here unchanged ...
+
+    return 0; // <--- Recorder shuts down automatically here
+}
+
+ **  Turning it on: Creating Aegis engine; quietly spins up background workers and the lock-free shared ring buffer. The engineer does not have to create threads, configure file paths, or manage buffers manually.
+
+ ** Turning it off (RAII): Because of C++ RAII (Resource Acquisition Is Initialization), when the application finishes or if someone hits Ctrl+C, C++ cleans up the engine object automatically. Aegis catches that exit signal, stops accepting new data, cleanly shuts down its background threads, and safely writes the last bits of memory to the log.   
+
+## 3. Compile with one extra flag
+   When  compile their project,  add -laegis so that compiler stitches the pre-built binary into the executable:
+
+        g++ -std=c++17 your_app.cpp -I./include -L./lib -laegis -o your_app
+
+
+
+## OR
+
+
+
+
 Aegis is distributed as a pre-compiled static library to ensure zero dependencies and instantaneous integration into your C++ stack.
 
 1. Include the headers from the `include/` directory.
@@ -57,7 +97,7 @@ int main() {
     return 0;
 }
 
-Execution & Graceful Shutdown (Stopping Mid-Way)
+## Execution & Graceful Shutdown (Stopping Mid-Way)
 The engine relies on C++ RAII (Resource Acquisition Is Initialization) to manage its lifecycle safely.
 
 If you need to halt the AI application mid-way (e.g., pressing Ctrl+C or a sudden process interrupt), the Aegis destructor automatically triggers a graceful shutdown sequence:
@@ -72,7 +112,8 @@ No data is lost during an unexpected mid-way termination.
 
 
 Telemetry & Log Analysis
-Upon the completion of every run (or after a graceful shutdown), Aegis automatically generates a fresh, human-readable log file in the execution directory: aegis_session_report.txt.
+Upon the completion of every run (or after a graceful shutdown), Aegis automatically generates a fresh, human-readable log file in the execution directory: 
+## aegis_session_report.txt.
 
 Always review this file after a run. It translates the raw binary ledger into parsed agent events and appends an Anomaly Flag to highlight errant AI behavior.
 
