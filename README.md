@@ -97,6 +97,18 @@ int main() {
     return 0;
 }
 
+
+
+
+
+## What happens when it run 
+ AI application will run exactly as it did before, at full speed.
+
+Aegis sits silently in shared memory, capturing execution cycles without slowing down the primary workload.
+
+When the run finishes (or is interrupted), a readable text file named ## aegis_session_report.txt ## appears in the folder. The engineer opens it to see the exact sequence of events leading up to any failure.
+
+
 ## Execution & Graceful Shutdown (Stopping Mid-Way)
 The engine relies on C++ RAII (Resource Acquisition Is Initialization) to manage its lifecycle safely.
 
@@ -113,7 +125,7 @@ No data is lost during an unexpected mid-way termination.
 
 Telemetry & Log Analysis
 Upon the completion of every run (or after a graceful shutdown), Aegis automatically generates a fresh, human-readable log file in the execution directory: 
-## aegis_session_report.txt.
+## aegis_session_report.txt
 
 Always review this file after a run. It translates the raw binary ledger into parsed agent events and appends an Anomaly Flag to highlight errant AI behavior.
 
