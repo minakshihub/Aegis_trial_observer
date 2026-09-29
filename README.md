@@ -101,7 +101,7 @@ int main() {
 
 
 
-## What happens when it run 
+## What happens when it runs 
  AI application will run exactly as it did before, at full speed.
 
 Aegis sits silently in shared memory, capturing execution cycles without slowing down the primary workload.
