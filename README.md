@@ -1,15 +1,21 @@
-# Aegis Observer Engine: 72-Hour Evaluation Edition
+# Aegis Observer Engine
 
 Aegis is a bare-metal C++17 telemetry and anomaly-detection firewall engineered for autonomous AI agent swarms. 
 
+# The Architectural Thesis
+
+# The I/O Serialization Tax in Agentic Workflows
+Standard enterprise agent architectures fail at the observability layer. When attempting to monitor the non-deterministic state space of probabilistic agents, standard frameworks rely on synchronous, inline logging. This introduces a critical I/O serialization tax.
+
+Attempting to log complex reasoning loops synchronously creates an observer effect: the telemetry itself destroys the compute throughput and alters the latency of the system it is trying to measure.
+
+# The Bare-Metal Solution: Out-of-Process Telemetry
+Aegis is a bare-metal C++17 telemetry and anomaly-detection engine engineered to solve this exact physical boundary. It strictly separates the Execution Path from the Diagnostic Path.
+
+Instead of inline blocking, Aegis operates entirely out-of-process via a lock-free shared-memory ring buffer. It passively caches an agent's rolling execution cycles with nanosecond overhead on the happy path. It dumps the causal forensic sequence to disk strictly when an anomaly or execution invariant trips—ensuring zero latency drag on the host application.
+
 Designed to sit invisibly between your application layer and the upstream LLM, Aegis acts as a microsecond-latency circuit breaker. It prevents runaway loops, token bloat, and application deadlocks before they exhaust your API budget or crash your local infrastructure.
 
-### ⚠️ Evaluation Notice: 72-Hour Time Lock
-This repository contains the **Trial Edition** of the Aegis Industrial Core. The `libaegis.a` binary provided in this repository is cryptographically time-locked. It contains the complete, unrestricted feature set of the industrial engine, but will automatically permanently halt execution exactly **72 hours** after its compilation timestamp. 
-
-For the permanent industrial license and source integration, please contact the repository owner.
-
----
 
 ## Capabilities & Anomaly Detection
 
@@ -143,6 +149,14 @@ Always review this file after a run. It translates the raw binary ledger into pa
 * **512**  : `READ_ONLY_SPIRAL` - Endless reading/researching without action
 * **1024** : `SWARM_DEADLOCK` - Multi-agent infinite ping-pong loop
 * **2048** : `PAYLOAD_FLOOD` - Sudden massive data ingestion/output spike
+
+
+### ⚠️ Evaluation Notice: 72-Hour Time Lock
+This repository contains the **Trial Edition** of the Aegis Industrial Core. The `libaegis.a` binary provided in this repository is cryptographically time-locked. It contains the complete, unrestricted feature set of the industrial engine, but will automatically permanently halt execution exactly **72 hours** after its compilation timestamp. 
+
+For the permanent industrial license and source integration, please contact the repository owner.
+
+---
 
 License
 Proprietary and Confidential
