@@ -90,78 +90,40 @@ If we required evaluators to configure standalone background daemons and multi-p
 
 To instantly demonstrate the lock-free math and anomaly detection locally, the libaegis.a trial binary deliberately compiles both the producer and the heavy consumer engine into a single executable.
 
-# Aegis Observer: 72-Hour Evaluation Trial
+
+# Aegis Observer: 72-Hour Multi-Agent Stress Test
 
 This repository contains the 72-hour trial binary (`libaegis.a`) and a pre-configured multi-agent test environment. 
 
 We have included a transparent dummy host (`main.cpp`) that simulates a zero-trust environment. It launches 3 concurrent threads (a Normal Agent, a Hacker injecting anomalies, and a Spammer running a 10,000-event DDoS loop) to prove that the Aegis lock-free ring buffer absorbs high-frequency attacks without host I/O drag.
 
-## PHASE 1: Run the Provided Stress Test (Quickstart)
-To see the engine in action immediately, compile and run the included multi-agent test.
+## How to Run the Stress Test
+To see the engine in action, compile and run the included multi-agent test.
 
 **1. Configure and Build**
 Open your terminal inside this repository and run:
-```bash
+
+
 mkdir build && cd build
 cmake ..
 make
 
 2. Execute the Anomaly Simulation
-
-Bash
 ./aegis_test
-You will see the terminal output as the engine instantly drops spoofed tokens and absorbs the DDoS loop in O(1) time.
+
+You will see the terminal output as the engine instantly drops spoofed tokens, blocks replay attacks, and absorbs the DDoS loop in O(1) time.
 
 3. Check the Forensic Audit
-Once the run finishes, Aegis outputs a human-readable ledger. Open it to see the exact captured state:
-
-Bash
+Once the run finishes, Aegis outputs a human-readable ledger. Open it to see the exact captured state and boundaries:
+   
 cat aegis_session_report.txt
-PHASE 2: Integrate Into Your Own Project
-Once you have seen the stress test, you can drop the Aegis trial engine into your own local AI codebase in three steps.
 
-1. Drop the files into your project
-Copy two items from this repository into your existing codebase:
+Next Step: Test on Your Own AI Agents
+This repository is a self-contained sandbox designed exclusively to demonstrate the lock-free ring buffer's concurrency and anomaly rejection under extreme stress.
 
-The header file (include/aegis.hpp) into your include folder.
+To integrate Aegis into your own custom AI applications using the true out-of-process, bare-metal architecture, please contact the lead architect to request access to the Integration Evaluation Kit.
 
-The static binary (lib/libaegis.a) into your lib folder.
-
-2. Add two lines of code (Trial Configuration)
-Inside your test application's main() function, instantiate the engine. (Note: In the trial, the Observer spins up in-process for easy evaluation. In production, this line is deleted and Aegis runs completely out-of-band).
-#include "aegis.hpp"
-
-int main() { 
-    // [TRIAL ONLY]: Spins up the Observer engine
-    Aegis engine; 
-    
-    // ... Your AI agent test/simulation code runs here unchanged ...
-    // In this trial, the engine automatically intercepts test telemetry.
-
-    return 0; // <--- Trial recorder securely flushes to disk and shuts down here
-}
-
-3. Compile with one extra flag
-When you compile your project, add -laegis so the compiler stitches the pre-built trial binary into your executable:
-
-Bash
-g++ -std=c++17 your_app.cpp -I./include -L./lib -laegis -o your_app
-What happens when it runs?
-Your AI application will run exactly as it did before, at full speed. Aegis sits silently in shared memory, capturing execution cycles and anomalies without slowing down the primary workload. When the run finishes, aegis_session_report.txt will appear in your folder containing the exact sequence of events
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Contact: minakshi.architech@gmail.com
 
 
 
