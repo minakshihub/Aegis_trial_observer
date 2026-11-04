@@ -90,45 +90,81 @@ If we required evaluators to configure standalone background daemons and multi-p
 
 To instantly demonstrate the lock-free math and anomaly detection locally, the libaegis.a trial binary deliberately compiles both the producer and the heavy consumer engine into a single executable.
 
-# STEPWISE: Running the Single-Process Trial
-Integrating the trial into your local test environment takes three concrete steps:
+# Aegis Observer: 72-Hour Evaluation Trial
 
-# 1. Drop the files into your project
-Copy two items into your existing test codebase:
+This repository contains the 72-hour trial binary (`libaegis.a`) and a pre-configured multi-agent test environment. 
 
-The header file (aegis.hpp) into your include folder.
+We have included a transparent dummy host (`main.cpp`) that simulates a zero-trust environment. It launches 3 concurrent threads (a Normal Agent, a Hacker injecting anomalies, and a Spammer running a 10,000-event DDoS loop) to prove that the Aegis lock-free ring buffer absorbs high-frequency attacks without host I/O drag.
 
-The static binary (libaegis.a) into your lib folder.
+## PHASE 1: Run the Provided Stress Test (Quickstart)
+To see the engine in action immediately, compile and run the included multi-agent test.
 
-# 2. Add two lines of code (Trial Configuration)
-Inside your test application's main() function, add these two lines.(Note: As explained above, this object is removed in production).
+**1. Configure and Build**
+Open your terminal inside this repository and run:
+```bash
+mkdir build && cd build
+cmake ..
+make
 
-C++
+2. Execute the Anomaly Simulation
+
+Bash
+./aegis_test
+You will see the terminal output as the engine instantly drops spoofed tokens and absorbs the DDoS loop in O(1) time.
+
+3. Check the Forensic Audit
+Once the run finishes, Aegis outputs a human-readable ledger. Open it to see the exact captured state:
+
+Bash
+cat aegis_session_report.txt
+PHASE 2: Integrate Into Your Own Project
+Once you have seen the stress test, you can drop the Aegis trial engine into your own local AI codebase in three steps.
+
+1. Drop the files into your project
+Copy two items from this repository into your existing codebase:
+
+The header file (include/aegis.hpp) into your include folder.
+
+The static binary (lib/libaegis.a) into your lib folder.
+
+2. Add two lines of code (Trial Configuration)
+Inside your test application's main() function, instantiate the engine. (Note: In the trial, the Observer spins up in-process for easy evaluation. In production, this line is deleted and Aegis runs completely out-of-band).
 #include "aegis.hpp"
 
 int main() { 
-    // [TRIAL ONLY]: Spins up the Observer consumer in-process for easy evaluation.
-    // [PRODUCTION]: This line is deleted. The Observer runs out-of-band.
+    // [TRIAL ONLY]: Spins up the Observer engine
     Aegis engine; 
     
     // ... Your AI agent test/simulation code runs here unchanged ...
     // In this trial, the engine automatically intercepts test telemetry.
 
-    return 0; // <--- Trial recorder shuts down automatically here (C++ RAII)
+    return 0; // <--- Trial recorder securely flushes to disk and shuts down here
 }
-# 3. Compile with one extra flag
+
+3. Compile with one extra flag
 When you compile your project, add -laegis so the compiler stitches the pre-built trial binary into your executable:
 
 Bash
 g++ -std=c++17 your_app.cpp -I./include -L./lib -laegis -o your_app
+What happens when it runs?
+Your AI application will run exactly as it did before, at full speed. Aegis sits silently in shared memory, capturing execution cycles and anomalies without slowing down the primary workload. When the run finishes, aegis_session_report.txt will appear in your folder containing the exact sequence of events
 
 
-## What happens when it runs 
- AI application will run exactly as it did before, at full speed.
 
-Aegis sits silently in shared memory, capturing execution cycles without slowing down the primary workload.
 
-When the run finishes (or is interrupted), a readable text file named ## aegis_session_report.txt ## appears in the folder. The engineer opens it to see the exact sequence of events leading up to any failure.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Stopping the Trial & Log Analysis
 The Trial Harness relies on C++ RAII (Resource Acquisition Is Initialization) to manage its lifecycle safely.
